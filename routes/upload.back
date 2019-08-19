@@ -1,0 +1,48 @@
+var express = require('express');
+var router = express.Router();
+var fs = require('fs');
+var multer = require('multer');
+var upload = multer({ dest: '/var/www/html/uploads/' });
+var sha256File = require('sha256-file');
+
+router.post('/', upload.fields([ { name: 'thumbnail' } ]), function(req, res, next) {
+var path = req.files.thumbnail[0].path;
+var filename = req.files.thumbnail[0].filename;
+var originalname = req.files.thumbnail[0].originalname;
+var targetPath = '/var/www/html/uploads/' + originalname;
+var fwversion = req.body.fwversion;
+var devicetype = req.body.devicetype;
+
+//require('./mam.js');
+//console.log(path, filename, originalname,fwversion,devicetype);
+
+/*
+sha256File(targetPath, function (error, sum) {
+  if (error) return console.log(error);
+  console.log("Hash --> "+sum)
+  return sum;
+})
+*/
+
+// IOTA BELOW
+
+
+
+// IOTA AVOBE
+fs.rename(path, targetPath, function(err) {
+    if (err) {
+      throw err;
+    }
+    fs.unlink(path, function() {
+      if (err) {
+        throw err;
+      }
+      //console.log(sha256File(targetPath));
+      res.render('upload', { fwv: fwversion, devicet: devicetype, title: 'Uploaded', target: targetPath, fsize: req.files.thumbnail[0].size, fname: filename, ofname: originalname, hash:sha256File(targetPath), url:"https://vendor.local/uploads/"+originalname });
+      //console.log('File uploaded to: ' + targetPath + ' - ' + req.files.thumbnail[0].size + ' bytes. Hash value is ');
+      //res.send('File uploaded to: ' + targetPath + ' - ' + req.files.thumbnail[0].size + ' bytes');
+    });
+  });
+});
+
+module.exports = router;

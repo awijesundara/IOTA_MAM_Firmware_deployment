@@ -1,0 +1,19 @@
+<% layout('layout') -%>
+</br>
+<h1>File uploaded !</h1>
+<p class="lead">Upload information </p>
+<div class="table-responsive">
+<form action="/send" method="POST" accept-charset="UTF-8">
+    <table id="table-cluster" class="table table-striped">
+            <tbody>
+		<tr><td>Firmware Version</td>		<td><input type="text" STYLE="color: #000000; background: transparent;display: inline-block; border: 0px solid #FFF; " name="firmware_version" value="<%= fwv %>" readonly></td>		</tr>
+		<tr><td>File Name</td>			<td><input type="text" STYLE="color: #000000; background: transparent;display: inline-block; border: 0px solid #FFF; " name="file_name" value="<%= ofname %>" readonly></td>	</tr>
+		<tr><td>File Size</td>			<td><input type="text" STYLE="color: #000000; background: transparent;display: inline-block; border: 0px solid #FFF; " name="file_size" value="<%= fsize %>" readonly> bytes	</tr>
+		<tr><td>File Hash [SHA256]</td>		<td><input type="text" STYLE="color: #000000; background: transparent;display: inline-block; border: 0px solid #FFF; " name="file_hash" value="<%= hash %>" readonly></td>		</tr>
+		<tr><td>Public URL</td>			<td><input type="text" STYLE="color: #000000; background: transparent;display: inline-block; border: 0px solid #FFF; " name="file_url" value="<%= url %>" readonly></td>		</tr>
+		<tr><td>IPFS Path</td>			<td><input type="text" STYLE="color: #000000; background: transparent;display: inline-block; border: 0px solid #FFF; " name="ipfs_path" value="<%= ipfs_path %>" readonly></td>		</tr>
+		<tr><td>Device Type</td>		<td><input type="text" STYLE="color: #000000; background: transparent;display: inline-block; border: 0px solid #FFF; " name="device_type" value="<%= devicet %>" readonly></td>		</tr>
+		<tr><td><button placeholder="Button">Publish</button></td><td></td></tr>
+	    </tbody>
+    </table>
+</form>

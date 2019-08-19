@@ -1,0 +1,14 @@
+<% layout('layout') -%>
+</br>
+<h1>Hellow Vendor !</h1>
+<p class="lead">Vendor's firmware deployment platform </p>
+<div class="table-responsive">
+<form method="POST"enctype="multipart/form-data" action="/upload">
+    <table id="table-cluster" class="table table-striped">
+            <tbody>
+                <tr><td>Device Type</td><td><select name="devicetype" required><option value="Light">Light</option><option value="Switch">Switch</option><option value="Sensor">Sensor</option></select></td></tr>
+		<tr><td>Firmware Version</td><td><input name="fwversion" type="text" required placeholder="0.1.2.3"></input></td></tr>
+		<tr><td><input type="file" id="document"  name="thumbnail" required placeholder="Please select firmware file"></input></td></input><td><input type="submit"></input></td></tr>
+            </tbody>
+    </table>
+</form>
