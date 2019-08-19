@@ -1,10 +1,10 @@
 var Mam = require('./lib/mam.node.js')
 var IOTA = require('iota.lib.js')
-var iota = new IOTA({ provider: `https://tangle.anushkawijesundara.com` })
+var iota = new IOTA({ provider: `https://tangle.anushkawijesundara.com:8443` })
 
 // Init State
 // INSERT THE ROOT IN HERE!
-let root = 'ELJORE9DMKMCCZORSTESKWXRMQNXQICBQSIOQCLFIPWHWQYNRDPHFBJXFI9NRSKXMAQULGKRTSESQ9JIE'
+let root = 'YOUR ROOT'
 
 // Initialise MAM State
 var mamState = Mam.init(iota)
