@@ -95,7 +95,7 @@ app.post("/send", function(req, res){
 	//let yourMessage=JSON.stringify(req.body);
 	let yourMessage=req.body;
 	// Please supply a SEED --> 81 chars of A-Z9 //
-	let seed = '9ZBZYCPDRRHIVCG9ILRFMBMTFDUSB9VTM9XXHSLCXZAFZWWLEUUSPCNGCGDYODJRASG';
+	let seed = 'YOUR IOTA SEED';
 	// Length:  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 	let mamState = null;
