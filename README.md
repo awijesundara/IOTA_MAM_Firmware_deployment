@@ -1,4 +1,4 @@
-Research : Development of a firmware authenticating and updating scheme for smart home IoT devices using distributed ledger technologies
+Research : Security-enhanced firmware management scheme for smart home IoT devices using distributed ledger technologies
 
 Sub development : Vendor's  web based firmware deployment platform 
 
@@ -8,7 +8,7 @@ Author : Anushka Wijesundara
 
 Repository : github.anushkawijesundara.com
 
-Date : 16/08/2019
+Date : 16/06/2023
 
 Version : v1.1
 
@@ -16,4 +16,4 @@ Version  history
 v1.0 : MAM enabled
 v1.1 : IPFS enabled
 
-Last update : 2019/Aug/16
+Last update : 2023/06/16
