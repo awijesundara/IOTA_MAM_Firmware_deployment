@@ -1,11 +1,16 @@
+// Gateway-side self-test HTTP server: subscribes to the legacy IOTA MAM
+// channel and would serve replayed messages over plain HTTP. See the
+// README "Legacy protocol notice" section for context on the deprecated
+// MAM protocol and public node this targets.
+require('dotenv').config();
 var http = require('http');
-var Mam = require('./lib/mam.node.js')
+var Mam = require('../lib/mam.node.js')
 var IOTA = require('iota.lib.js')
-var iota = new IOTA({ provider: `https://tangle.anushkawijesundara.com:8443` })
+var iota = new IOTA({ provider: process.env.IOTA_NODE_PROVIDER || `https://tangle.anushkawijesundara.com:8443` })
 
 // Init State
 // INSERT THE ROOT IN HERE!
-let root = 'YOUR ROOT'
+let root = process.env.IOTA_MAM_ROOT || 'YOUR ROOT'
 
 // Initialise MAM State
 var mamState = Mam.init(iota)

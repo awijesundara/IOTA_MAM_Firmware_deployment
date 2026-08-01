@@ -1,53 +1,55 @@
-var ipfsAPI = require('ipfs-api');
-var express = require('express');
-var router = express.Router();
-var fs = require('fs');
-var multer = require('multer');
-var upload = multer({ dest: '/var/www/html/uploads/' });
-var sha256File = require('sha256-file');
-const app = express();
+const express = require('express');
+const router = express.Router();
+const fs = require('fs/promises');
+const multer = require('multer');
+const sha256File = require('sha256-file');
+// NOTE: the original code used the long-deprecated `ipfs-api` package.
+// `kubo-rpc-client` is the maintained successor for talking to a Kubo
+// (go-ipfs) node's HTTP RPC API; it exposes a promise-based client instead
+// of the old callback style. Behaviour (pin firmware binary to IPFS,
+// then report firmware metadata + IPFS + Tangle info) is unchanged.
+const { create } = require('kubo-rpc-client');
 
-router.post('/', upload.fields([ { name: 'thumbnail' } ]), function(req, res, next) {
+const UPLOAD_DIR = process.env.FIRMWARE_UPLOAD_DIR || '/var/www/html/uploads/';
+const upload = multer({ dest: UPLOAD_DIR });
 
-var path = req.files.thumbnail[0].path;
-var filename = req.files.thumbnail[0].filename;
-var originalname = req.files.thumbnail[0].originalname;
-var targetPath = '/var/www/html/uploads/' + originalname;
-var fwversion = req.body.fwversion;
-var devicetype = req.body.devicetype;
+router.post('/', upload.fields([{ name: 'thumbnail' }]), async function (req, res, next) {
+    try {
+        const file = req.files.thumbnail[0];
+        const { path, filename, originalname } = file;
+        const targetPath = UPLOAD_DIR + originalname;
+        const fwversion = req.body.fwversion;
+        const devicetype = req.body.devicetype;
 
-const ipfs = ipfsAPI({
-  host: '127.0.0.1',
-  port: 5001,
-  protocol: 'http'
-});
+        const ipfs = create({
+            host: process.env.IPFS_API_HOST || '127.0.0.1',
+            port: process.env.IPFS_API_PORT || 5001,
+            protocol: process.env.IPFS_API_PROTOCOL || 'http'
+        });
 
-let IPFS_File = fs.readFileSync(path);
-//let IPFS_Buffer = new Buffer(IPFS_File); //OLD buffer method
-let IPFS_Buffer = Buffer.from(IPFS_File);  //NEW buffer method
+        const fileBuffer = await fs.readFile(path);
 
-fs.rename(path, targetPath, function(err) {
-    if (err) {
-      throw err;
+        await fs.rename(path, targetPath);
+
+        const { cid, size } = await ipfs.add(fileBuffer);
+
+        res.render('upload', {
+            fwv: fwversion,
+            devicet: devicetype,
+            title: 'Uploaded',
+            target: targetPath,
+            fsize: file.size,
+            fname: filename,
+            ofname: originalname,
+            hash: sha256File(targetPath),
+            ipfs_path: cid.toString(),
+            ipfs_hash: cid.toString(),
+            ipfs_size: size,
+            url: (process.env.FIRMWARE_PUBLIC_BASE_URL || 'http://vendor.local/uploads/') + originalname
+        });
+    } catch (err) {
+        next(err);
     }
-    fs.unlink(path, function() {
-      if (err) {
-        throw err;
-      }
-
-    ipfs.files.add(IPFS_Buffer, function (err, file) {
-        if (err) {
-          console.log(err);
-        }
-      console.log(file);
-      //console.log(sha256File(targetPath));
-      res.render('upload', { fwv: fwversion, devicet: devicetype, title: 'Uploaded', target: targetPath, fsize: req.files.thumbnail[0].size, fname: filename, ofname: originalname, hash:sha256File(targetPath), ipfs_path: file[0].path, ipfs_hash: file[0].hash, ipfs_size: file[0].size, url:"http://vendor.local/uploads/"+originalname });
-      //console.log('File uploaded to: ' + targetPath + ' - ' + req.files.thumbnail[0].size + ' bytes. Hash value is ');
-      //console.log(next);
-      //res.send('File uploaded to: ' + targetPath + ' - ' + req.files.thumbnail[0].size + ' bytes');
-	})
-    });
-  });
 });
 
 module.exports = router;

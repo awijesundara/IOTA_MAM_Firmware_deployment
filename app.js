@@ -1,21 +1,23 @@
-// Anushka Wijesundara | MIT licenced | Vendor's node web deployment platform 
+// Anushka Wijesundara | MIT licenced | Vendor's node web deployment platform
 // github.anushkawijesundara.com
-// 16/08/2019 v1.1
+// v1.2 modernized
 
 // Development history
 // v1.0 -> MAM enabled
 // v1.1 -> IPFS enabled
+// v1.2 -> dependency/API modernization (see README "Legacy protocol notice")
 
+require('dotenv').config();
 
 var express = require('express');
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
-var engine = require('ejs-locals');
+var expressLayouts = require('express-ejs-layouts');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+var { publishFirmwareUpdate } = require('./lib/mamPublisher');
 
 var routes = require('./routes/index');
 var devices = require('./routes/devices');
@@ -27,15 +29,15 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.engine('ejs', engine);
 app.set('view engine', 'ejs');
+app.use(expressLayouts);
 
 //uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -47,9 +49,9 @@ app.use(passport.session());
 //   credentials (in this case, an accessToken, refreshToken, and Facebook
 //   profile), and invoke a callback with a user object.
 passport.use(new FacebookStrategy({
-        clientID: config.facebook.application_id,
-        clientSecret: config.facebook.application_secret,
-        callbackURL: "http://www.figueiredos.com:3000/auth/facebook/callback"
+        clientID: process.env.FACEBOOK_APP_ID || config.facebook.application_id,
+        clientSecret: process.env.FACEBOOK_APP_SECRET || config.facebook.application_secret,
+        callbackURL: process.env.FACEBOOK_CALLBACK_URL || "http://www.figueiredos.com:3000/auth/facebook/callback"
     },
     function(accessToken, refreshToken, profile, done) {
         // asynchronous verification, for effect...
@@ -84,75 +86,26 @@ app.post("/send", function(req, res){
 
 */
 
-	// Sending the JSON array to MAM
-	let Mam = require('./lib/mam.node.js');
-	let IOTA = require('iota.lib.js');
-
-	// LIVE NODE !
-	let iota = new IOTA({ provider: `https://tangle.anushkawijesundara.com:8443` });
-
-	//Passing the JSON value to Message Variable
-	//let yourMessage=JSON.stringify(req.body);
-	let yourMessage=req.body;
+	// Publish the firmware-announcement packet to the IOTA MAM channel.
+	// See lib/mamPublisher.js and the README "Legacy protocol notice" for
+	// why this still targets the legacy (pre-Chrysalis) MAM protocol.
+	let provider = process.env.IOTA_NODE_PROVIDER || 'https://tangle.anushkawijesundara.com:8443';
 	// Please supply a SEED --> 81 chars of A-Z9 //
-	let seed = 'YOUR IOTA SEED';
+	let seed = process.env.IOTA_MAM_SEED || 'YOUR IOTA SEED';
 	// Length:  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-	let mamState = null;
+	let packet = req.body;
 
-	async function fetchStartCount(){
-    	let trytes = iota.utils.toTrytes('START');
-    	let message = Mam.create(mamState, trytes);
-    	console.log('The first root:');
-    	console.log(message.root);
-    	console.log();
-    	// Fetch all the messages upward from the first root.
-    	return await Mam.fetch(message.root, 'public', null, null);
-
-}
-
-	async function publish(packet){
-    	// Create the message.
-    	let trytes = iota.utils.toTrytes(JSON.stringify(packet))
-    	let message = Mam.create(mamState, trytes);
-    	// Set the mam state so we can keep adding messages.
-    	mamState = message.state;
-    	console.log('Sending message: ', packet);
-    	console.log('Root: ', message.root);
-    	console.log('Address: ', message.address);
-    	console.log();
-    	// Attach the message.
-    	return await Mam.attach(message.payload, message.address);
-}
-
-	// Initiate the mam state with the given seed at index 0.
-	mamState = Mam.init(iota, seed, 2, 0);
-
-	// Fetch all the messages in the stream.
-	fetchStartCount().then(v => {
-    	// Log the messages.
-    	let startCount = v.messages.length;
-    	console.log('Messages already in the stream:');
-    	for (let i = 0; i < v.messages.length; i++){
-        let msg = v.messages[i];
-        console.log(JSON.parse(iota.utils.fromTrytes(msg)));
-    }
-    console.log();
-
-    // To add messages at the end we need to set the startCount for the mam state to the current amount of messages.
-    mamState = Mam.init(iota, seed, 2, startCount);
-
-	//let newMessage = Date.now() + ' ' + yourMessage;
-	let newMessage = yourMessage;
-    // Now the mam state is set, we can add the message.
-    	publish(newMessage);
+	publishFirmwareUpdate(packet, { provider, seed }).then(({ root, messages }) => {
+		console.log('Messages already in the stream:', messages.length);
+		console.log('Sending message: ', packet);
+		console.log('Root: ', root);
 	}).catch(ex => {
-    console.log(ex);
-});
+		console.log(ex);
+	});
 
-
- console.log(req.body)
- res.redirect("/success")
+	console.log(req.body)
+	res.redirect("/success")
 });
 
 app.use('/', routes);
