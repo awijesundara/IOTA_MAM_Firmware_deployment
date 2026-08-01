@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <% include templates/head.ejs %>
+    <%- include('templates/head.ejs', {title}) %>
 </head>
 
 <body>
 
-<% include templates/header.ejs %>
+<%- include('templates/header.ejs', {title}) %>
 
 
 <!-- Insert Body here -->
@@ -18,8 +18,8 @@
 
 </main><!-- /.container -->
 
-<% include templates/footer.ejs %>
+<%- include('templates/footer.ejs') %>
 
-<% include templates/includes.ejs %>
+<%- include('templates/includes.ejs') %>
 </body>
 </html>
