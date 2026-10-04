@@ -8,6 +8,16 @@ signed, tamper-evident "new firmware is available" announcement onto the
 IOTA Tangle, which IoT gateways/devices can independently verify and act on
 without trusting the vendor's web server at delivery time.
 
+[![CI](https://github.com/awijesundara/IOTA_MAM_Firmware_deployment/actions/workflows/ci.yml/badge.svg)](https://github.com/awijesundara/IOTA_MAM_Firmware_deployment/actions/workflows/ci.yml)
+[![Last commit](https://img.shields.io/github/last-commit/awijesundara/IOTA_MAM_Firmware_deployment/master)](https://github.com/awijesundara/IOTA_MAM_Firmware_deployment/commits/master)
+[![Top language](https://img.shields.io/github/languages/top/awijesundara/IOTA_MAM_Firmware_deployment)](https://github.com/awijesundara/IOTA_MAM_Firmware_deployment)
+[![Code size](https://img.shields.io/github/languages/code-size/awijesundara/IOTA_MAM_Firmware_deployment)](https://github.com/awijesundara/IOTA_MAM_Firmware_deployment)
+[![License](https://img.shields.io/github/license/awijesundara/IOTA_MAM_Firmware_deployment)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=nodedotjs&logoColor=white)](package.json)
+[![IOTA](https://img.shields.io/badge/IOTA-MAM-131F37?logo=iota&logoColor=white)](lib)
+[![IPFS](https://img.shields.io/badge/IPFS-kubo-65C2CB?logo=ipfs&logoColor=white)](package.json)
+[![status](https://img.shields.io/badge/status-research%20prototype%202019----2023-orange)](#)
+
 ## What it actually does
 
 1. An admin logs in (Facebook OAuth, via Passport) and uploads a firmware
@@ -166,3 +176,14 @@ performed in this environment.
 ## Author
 
 Anushka Wijesundara — Tokyo Institute of Technology (student no. 18M18780)
+
+## Project statistics
+
+| Metric | Value |
+|---|---|
+| Tracked files | 67 |
+| Lines of code (non-blank) | 181,069 |
+| Languages | JavaScript 170,535, CSS 10,203, TypeScript 331 |
+| Commits | 23 |
+
+CI installs dependencies from the lockfile and syntax-checks every application source on each push to `master`.
